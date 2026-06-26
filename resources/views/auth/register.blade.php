@@ -24,9 +24,9 @@
 
         @if($errors->any())
             <div class="bg-red-50 border border-red-200 text-red-600 p-3 rounded-lg mb-6 text-sm">
-                <ul>
+                <ul class="list-disc pl-4">
                     @foreach($errors->all() as $error)
-                        <li>- {{ $error }}</li>
+                        <li>{{ $error }}</li>
                     @endforeach
                 </ul>
             </div>
@@ -83,7 +83,7 @@
                 <p class="text-xs text-gray-500 mt-2">Minimal 8 karakter.</p>
             </div>
 
-            <button type="submit" class="w-full bg-[#1c5cf1] hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors text-sm flex justify-center items-center gap-2 mt-4">
+            <button type="submit" class="w-full bg-[#1c5cf1] hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors text-sm flex justify-center items-center gap-2 mt-4 z-20 relative">
                 Daftar <i class="fa-solid fa-arrow-right"></i>
             </button>
         </form>
