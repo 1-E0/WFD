@@ -65,7 +65,7 @@
         </form>
 
         <div class="mt-8 text-center text-sm text-gray-600">
-            Belum punya akun? <a href="#" class="text-blue-600 font-semibold hover:underline">Daftar Sekarang</a>
+            Belum punya akun? <a href="{{ route('register') }}" class="text-blue-600 font-semibold hover:underline">Daftar Sekarang</a>
         </div>
     </div>
 
