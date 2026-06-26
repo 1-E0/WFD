@@ -2,59 +2,65 @@
 
 namespace App\Http\Controllers;
 
-// Pastikan baris ini ada agar AuthController mengenali file Controller induk
-use App\Http\Controllers\Controller; 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    public function showLogin()
+    public function showLoginForm()
     {
         return view('auth.login');
     }
 
-    public function processLogin(Request $request)
+    public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required'
+        $request->validate([
+            'email' => 'required|string',
+            'password' => 'required|string',
         ]);
+
+        $loginType = filter_var($request->email, FILTER_VALIDATE_EMAIL) ? 'email' : 'nim';
+
+        $credentials = [
+            $loginType => $request->email,
+            'password' => $request->password
+        ];
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
             
-            // Laravel 12: Gunakan role_id sesuai model User Anda
             if (Auth::user()->role_id == 1) {
-                return redirect()->intended('/admin/dashboard');
+                return redirect()->route('admin.dashboard');
             }
-            return redirect()->intended('/mahasiswa/dashboard');
+            
+            return redirect()->route('mahasiswa.dashboard');
         }
 
-        return back()->with('error', 'Email atau Password salah.');
+        return back()->with('error', 'Kredensial yang diberikan tidak cocok dengan data kami.')->withInput();
     }
 
-    public function showRegister()
+    public function showRegisterForm()
     {
         return view('auth.register');
     }
 
-    public function processRegister(Request $request)
+    public function register(Request $request)
     {
-        // Validasi Laravel 12
-        $validated = $request->validate([
-        'name' => 'required|string|max:255',
-        'email' => 'required|email|unique:user,email', 
-        'password' => 'required|min:8'
-    ]);
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'nim' => 'required|string|max:255|unique:user',
+            'email' => 'required|string|email|max:255|unique:user',
+            'password' => 'required|string|min:8',
+        ]);
 
         $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'role_id' => 2 // 1: Admin, 2: Mahasiswa
+            'name' => $request->name,
+            'nim' => $request->nim,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role_id' => 2,
         ]);
 
         Auth::login($user);
@@ -67,6 +73,7 @@ class AuthController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+        
         return redirect('/');
     }
 }

@@ -9,14 +9,23 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RoleMiddleware
 {
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     */
     public function handle(Request $request, Closure $next, $role): Response
     {
+        // 1. Pastikan user sudah login
         if (!Auth::check()) {
-            return redirect('/login');
+            return redirect('login');
         }
 
+        // 2. Ambil role_id dari user yang sedang login
         $userRole = Auth::user()->role_id;
-        
+
+        // 3. Logika pengecekan akses
+        // Role 1 = Admin, Role 2 = Mahasiswa
         if ($role == 'admin' && $userRole == 1) {
             return $next($request);
         }
@@ -25,6 +34,7 @@ class RoleMiddleware
             return $next($request);
         }
 
-        abort(403, 'Akses Ditolak');
+        // 4. Jika role tidak cocok, kembalikan Error 403
+        abort(403, 'Anda tidak memiliki izin untuk mengakses halaman ini.');
     }
 }
